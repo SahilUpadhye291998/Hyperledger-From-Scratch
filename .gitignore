@@ -8,3 +8,4 @@
 /org3-artifacts/crypto-config/*
 *.java
 *.go
+byfn.sh
