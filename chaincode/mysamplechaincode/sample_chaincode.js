@@ -1,3 +1,5 @@
+// see how we can transfer the amount from the user to company
+// i see the code to be written would be more appropriate if written on comany side
 'use strict';
 const shim = require('fabric-shim');
 const util = require('util');
@@ -100,7 +102,7 @@ let Chaincode = class {
         return user;
     }
 
-    async deleteMobile(stud, args, thisClass) {
+    async deleteMobile(stub, args, thisClass) {
         if (args.length != 1) {
             throw new Error('Incorrect number of arguments. Expecting name of the marble to delete');
         }
@@ -134,6 +136,39 @@ let Chaincode = class {
 
         await stub.deleteState(mobileNameIndexKey);
     }
+
+    // async transferAmount(stub, args, thisClass) {
+    //     if (args.length < 2) {
+    //         throw new Error(`Invalid number of argument.`);
+    //     }
+
+    //     let mobile = args[0];
+    //     if (!mobile) {
+    //         throw new Error(`mobile cant be blanck`);
+    //     }
+    //     let company = args[1].toLowerCase();
+    //     if (!company) {
+    //         throw new Error(`Username cant be blanck`);
+    //     }
+
+    //     let user = await stub.getState(mobile);
+    //     if (!user || !user.toString()) {
+    //         throw new Error(`user cant be found here`);
+    //     }
+    //     let userJSON = {};
+    //     try {
+    //         userJSON = JSON.parse(JSON.stringify(user.toString()));
+    //     } catch (error) {
+    //         let jsonResp = {};
+    //         jsonResp.error = 'Failed to decode JSON of: ' + marbleName;
+    //         throw new Error(jsonResp);
+    //     }
+
+    //     let method = thisClass['queryUser'];
+    //     let companyJSON = await method(stub,company,thisClass);
+
+
+    // }
 
     async getMobileHistory(stud, args, thisClass) {
         if (args.length < 1) {

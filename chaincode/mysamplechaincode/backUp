@@ -1,0 +1,33 @@
+
+    // async transferAmount(stub, args, thisClass) {
+    //     if (args.length < 2) {
+    //         throw new Error(`Invalid number of argument.`);
+    //     }
+
+    //     let mobile = args[0];
+    //     if (!mobile) {
+    //         throw new Error(`mobile cant be blanck`);
+    //     }
+    //     let company = args[1].toLowerCase();
+    //     if (!company) {
+    //         throw new Error(`Username cant be blanck`);
+    //     }
+
+    //     let user = await stub.getState(mobile);
+    //     if (!user || !user.toString()) {
+    //         throw new Error(`user cant be found here`);
+    //     }
+    //     let userJSON = {};
+    //     try {
+    //         userJSON = JSON.parse(JSON.stringify(user.toString()));
+    //     } catch (error) {
+    //         let jsonResp = {};
+    //         jsonResp.error = 'Failed to decode JSON of: ' + marbleName;
+    //         throw new Error(jsonResp);
+    //     }
+
+    //     let method = thisClass['queryUser'];
+    //     let companyJSON = await method(stub,company,thisClass);
+
+
+    // }
