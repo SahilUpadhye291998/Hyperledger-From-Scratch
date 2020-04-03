@@ -20,11 +20,9 @@
 // peer chaincode query -C myc1 -n marbles -c '{"Args":["getHistoryForMarble","marble1"]}'
 // peer chaincode query -C myc1 -n marbles -c '{"Args":["getMarblesByRangeWithPagination","marble1","marble3","3",""]}'
 
-// Rich Query (Only supported if CouchDB is used as state database):
 // peer chaincode query -C myc1 -n marbles -c '{"Args":["queryMarblesByOwner","tom"]}'
 // peer chaincode query -C myc1 -n marbles -c '{"Args":["queryMarbles","{\"selector\":{\"owner\":\"tom\"}}"]}'
 
-// Rich Query with Pagination (Only supported if CouchDB is used as state database):
 // peer chaincode query -C myc1 -n marbles -c '{"Args":["queryMarblesWithPagination","{\"selector\":{\"owner\":\"tom\"}}","3",""]}'
 
 'use strict';
@@ -60,9 +58,6 @@ let Chaincode = class {
         }
     }
 
-    // ===============================================
-    // initMarble - create a new marble
-    // ===============================================
     // peer chaincode invoke -C myc1 -n marbles -c '{"Args":["initMarble","marble3","blue","70","tom"]}'
     async initMarble(stub, args, thisClass) {
         if (args.length != 4) {
@@ -116,9 +111,6 @@ let Chaincode = class {
         console.info('- end init marble');
     }
 
-    // ===============================================
-    // readMarble - read a marble from chaincode state
-    // ===============================================
     // peer chaincode query -C myc1 -n marbles -c '{"Args":["readMarble","marble1"]}'
     async readMarble(stub, args, thisClass) {
         if (args.length != 1) {
@@ -141,9 +133,6 @@ let Chaincode = class {
         return marbleAsbytes;
     }
 
-    // ==================================================
-    // delete - remove a marble key/value pair from state
-    // ==================================================
     // peer chaincode invoke -C myc1 -n marbles -c '{"Args":["delete","marble1"]}'
     async delete(stub, args, thisClass) {
         if (args.length != 1) {
@@ -181,9 +170,6 @@ let Chaincode = class {
         await stub.deleteState(colorNameIndexKey);
     }
 
-    // ===========================================================
-    // transfer a marble by setting a new owner name on the marble
-    // ===========================================================
     // peer chaincode invoke -C myc1 -n marbles -c '{"Args":["transferMarble","marble2","jerry"]}'
     async transferMarble(stub, args, thisClass) {
         //   0       1
@@ -217,17 +203,7 @@ let Chaincode = class {
         console.info('- end transferMarble (success)');
     }
 
-    // ===========================================================================================
-    // getMarblesByRange performs a range query based on the start and end keys provided.
-
-    // Read-only function results are not typically submitted to ordering. If the read-only
-    // results are submitted to ordering, or if the query is used in an update transaction
-    // and submitted to ordering, then the committing peers will re-execute to guarantee that
-    // result sets are stable between endorsement time and commit time. The transaction is
-    // invalidated by the committing peers if the result set has changed between endorsement
-    // time and commit time.
-    // Therefore, range queries are a safe option for performing update transactions based on query results.
-    // ===========================================================================================
+  
     // peer chaincode query -C myc1 -n marbles -c '{"Args":["getMarblesByRange","marble1","marble3"]}'
     async getMarblesByRange(stub, args, thisClass) {
 
@@ -245,14 +221,7 @@ let Chaincode = class {
         return Buffer.from(JSON.stringify(results));
     }
 
-    // ==== Example: GetStateByPartialCompositeKey/RangeQuery =========================================
-    // transferMarblesBasedOnColor will transfer marbles of a given color to a certain new owner.
-    // Uses a GetStateByPartialCompositeKey (range query) against color~name 'index'.
-    // Committing peers will re-execute range queries to guarantee that result sets are stable
-    // between endorsement time and commit time. The transaction is invalidated by the
-    // committing peers if the result set has changed between endorsement time and commit time.
-    // Therefore, range queries are a safe option for performing update transactions based on query results.
-    // ===========================================================================================
+   
     async transferMarblesBasedOnColor(stub, args, thisClass) {
 
         //   0       1
@@ -299,14 +268,6 @@ let Chaincode = class {
         console.info('- end transferMarblesBasedOnColor: ' + responsePayload);
     }
 
-
-    // ===== Example: Parameterized rich query =================================================
-    // queryMarblesByOwner queries for marbles based on a passed in owner.
-    // This is an example of a parameterized query where the query logic is baked into the chaincode,
-    // and accepting a single query parameter (owner).
-    // Only available on state databases that support rich query (e.g. CouchDB)
-    // =========================================================================================
-    // peer chaincode query -C myc1 -n marbles -c '{"Args":["queryMarblesByOwner","tom"]}'
     async queryMarblesByOwner(stub, args, thisClass) {
         //   0
         // 'bob'
@@ -324,13 +285,7 @@ let Chaincode = class {
         return queryResults; //shim.success(queryResults);
     }
 
-    // ===== Example: Ad hoc rich query ========================================================
-    // queryMarbles uses a query string to perform a query for marbles.
-    // Query string matching state database syntax is passed in and executed as is.
-    // Supports ad hoc queries that can be defined at runtime by the client.
-    // If this is not desired, follow the queryMarblesForOwner example for parameterized queries.
-    // Only available on state databases that support rich query (e.g. CouchDB)
-    // =========================================================================================
+    
     async queryMarbles(stub, args, thisClass) {
         //   0
         // 'queryString'
@@ -385,10 +340,7 @@ let Chaincode = class {
         }
     }
 
-    // =========================================================================================
-    // getQueryResultForQueryString executes the passed in query string.
-    // Result set is built and returned as a byte array containing the JSON results.
-    // =========================================================================================
+   
     async getQueryResultForQueryString(stub, queryString, thisClass) {
 
         console.info('- getQueryResultForQueryString queryString:\n' + queryString)
@@ -416,26 +368,7 @@ let Chaincode = class {
         return Buffer.from(JSON.stringify(results));
     }
 
-    // ====== Pagination =========================================================================
-    // Pagination provides a method to retrieve records with a defined pagesize and
-    // start point (bookmark).  An empty string bookmark defines the first "page" of a query
-    // result. Paginated queries return a bookmark that can be used in
-    // the next query to retrieve the next page of results. Paginated queries extend
-    // rich queries and range queries to include a pagesize and bookmark.
-    //
-    // Two examples are provided in this example. The first is getMarblesByRangeWithPagination
-    // which executes a paginated range query.
-    // The second example is a paginated query for rich ad-hoc queries.
-    // =========================================================================================
-
-    // ====== Example: Pagination with Range Query ===============================================
-    // getMarblesByRangeWithPagination performs a range query based on the start & end key,
-    // page size and a bookmark.
-    //
-    // The number of fetched records will be equal to or lesser than the page size.
-    // Paginated range queries are only valid for read only transactions.
-    // ===========================================================================================
-    // peer chaincode query -C myc1 -n marbles -c '{"Args":["getMarblesByRangeWithPagination","marble1","marble3","3",""]}'
+    
     async getMarblesByRangeWithPagination(stub, args, thisClass) {
         if (args.length < 2) {
             throw new Error('Incorrect number of arguments. Expecting 2');
@@ -457,10 +390,6 @@ let Chaincode = class {
         return Buffer.from(JSON.stringify(results));
     }
 
-    // =========================================================================================
-    // getQueryResultForQueryStringWithPagination executes the passed in query string with
-    // pagination info. Result set is built and returned as a byte array containing the JSON results.
-    // =========================================================================================
     async queryMarblesWithPagination(stub, args, thisClass) {
 
         //   0

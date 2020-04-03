@@ -1,0 +1,17 @@
+{
+    "name": "insurance",
+    "version": "1.0.0",
+    "description": "Sample custom made testENV",
+    "main": "insurance_chaincode.js",
+    "engines": {
+        "node": ">=8.4.0",
+        "npm": ">=5.3.0"
+    },
+    "scripts": { "start": "node insurance_chaincode.js" },
+    "engine-strict": true,
+    "author": "xGod666",
+    "license": "ISC",
+    "dependencies": {
+        "fabric-shim": "~1.4.0"
+    }
+}

@@ -151,8 +151,8 @@ function networkUp(){
     fi
     docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml up -d
     docker ps
-    docker exec cli /bin/sh -c "scripts/networkUp_v2.sh"
-    docker exec cli /bin/sh -c "scripts/testChaincode_v2.sh"
+    docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
+    docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
 }
 
 function networkDown() {
