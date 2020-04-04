@@ -164,6 +164,7 @@ function networkDown() {
     removeUnwantedImages
     rm -rf channel-artifacts/*.block channel-artifacts/*.tx crypto-config ./org3-artifacts/crypto-config/ channel-artifacts/org3.json
     rm -f docker-compose-e2e.yaml
+    docker volume prune
   fi
 
 }
@@ -191,7 +192,6 @@ if [ "$MODE" == "generate" ]; then
     echo "####################    Generate PreReq   #######################"
     echo "#################################################################"
     generateCerts
-    replacePrivateKey
     generateChannelArtifacts
 elif [ "$MODE" == "up" ]; then
     networkUp

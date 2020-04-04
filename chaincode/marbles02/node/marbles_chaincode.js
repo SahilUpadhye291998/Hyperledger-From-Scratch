@@ -340,7 +340,6 @@ let Chaincode = class {
         }
     }
 
-   
     async getQueryResultForQueryString(stub, queryString, thisClass) {
 
         console.info('- getQueryResultForQueryString queryString:\n' + queryString)
