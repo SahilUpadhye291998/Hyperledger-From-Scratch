@@ -1,14 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const enrollAdmin = require('../../methods/enrollAdmin'); 
 
-router.post("/",async (req,res)=>{
-    console.info("Admin route called");
-    json = {};
-    enrollAdmin()
+const user = require('../../methods/registerUser');
+
+router.post("/registerUser", async(req ,res)=>{
+    console.log("OK");
+    const userName = req.body.username;
+    const userOrg = req.body.orgName;
+    json = {}
+    user.registerUser(userName, userOrg)
         .then(()=>{
             json.code = 200;
-            json.Message = "Admin enrolled successfully";
+            json.Message = "User enrolled successfully";
             res.status(200).send(json);
         })
         .catch((error)=>{
@@ -19,4 +22,4 @@ router.post("/",async (req,res)=>{
         }); 
 });
 
-module.exports = router
+module.exports = router;

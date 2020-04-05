@@ -4,6 +4,7 @@ const app = express();
 
 //call user defined imports
 const admin = require('./routes/api/admin');
+const user = require('./routes/api/user');
 
 // use middlewares
 app.use(express.json());
@@ -17,8 +18,8 @@ app.get("/",(req,res)=>{
     res.send("Get Route Working");
 });
 
-app.use("/api",admin);
-
+app.use("/api/admin",admin);
+app.use("/api/user",user);
 //start server.
 const PORT = 3000 || process.env.PORT;
 app.listen(PORT,(req, res, next)=>{
