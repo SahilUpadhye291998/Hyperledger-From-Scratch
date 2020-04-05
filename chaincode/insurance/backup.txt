@@ -1,0 +1,36 @@
+
+    async deleteUser(stub, args, thisClass) {
+        if (args.length != 1) {
+            throw new Error('Incorrect number of arguments. Expecting name of the marble to delete');
+        }
+
+        let userArg = args[0];
+        if (!userArg) {
+            throw new Error(`Mobile number cant be left blank`);
+        }
+
+        let user = await stub.getState(userArg);
+        if (!user) {
+            throw Error(`Cannot find the user this is mobile number`);
+        }
+
+        let userJSON = {};
+        try {
+            userJSON = JSON.parse(user.toString());
+        } catch (error) {
+            let jsonError = {};
+            jsonError.Error = `Unable to decode json of ${mobile}`;
+            throw new Error(JSON.stringify(jsonError));
+        }
+
+        await stub.deleteState(userArg);
+
+        const indexName = `secret~name`;
+        let secretNameIndexKey = stub.createCompositeKey(indexName, [userJSON.secret, userJSON.name]);
+        if (!secretNameIndexKey) {
+            throw new Error(`Failed to create a composite key`);
+        }
+
+        console.log(`OK`);
+        await stub.deleteState(secretNameIndexKey);
+    }

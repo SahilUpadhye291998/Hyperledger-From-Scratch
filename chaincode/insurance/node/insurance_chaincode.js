@@ -33,6 +33,67 @@ let Chaincode = class {
     }
 
     async initUser(stub, args, thisClass) {
+        if (args.length != 6) {
+            throw new Error('Incorrect number of arguments. Expecting 4');
+        }
+        console.info('--- start init users ---')
+        if (args[0].length <= 0) {
+            throw new Error('1st argument must be a non-empty string');
+        }
+        if (args[1].length <= 0) {
+            throw new Error('2nd argument must be a non-empty string');
+        }
+        if (args[2].length <= 0) {
+            throw new Error('3rd argument must be a non-empty string');
+        }
+        if (args[3].length <= 0) {
+            throw new Error('4th argument must be a non-empty string');
+        }
+        if (args[4].length <= 0) {
+            throw new Error('5th argument must be a non-empty string');
+        }
+        if (args[5].length <= 0) {
+            throw new Error('5th argument must be a non-empty string');
+        }
+        let userName = args[0];
+        let userAddress = args[1];
+        let userMobile = args[2];
+        let userSecret = args[3];
+        let userAmount = parseInt(args[4]);
+        if (typeof userAmount !== 'number') {
+            throw new Error(`3rd argument should be a numeric type`);
+        }
+        let userPremiumAmount = parseFloat(args[5]);
+        if(typeof userPremiumAmount !== 'number'){
+            throw new Error(`3rd argument should be a numeric type`);
+        }
+
+        let userState = await stub.getState(userName);
+        if (userState.toString()) {
+            throw new Error(`User already exists`);
+        }
+
+        let user = {};
+        user.docType = 'user';
+        user.name = userName;
+        user.mobile = userMobile;
+        user.address = userAddress;
+        user.secret = userSecret;
+        user.amount = userAmount;
+        user.premiumAmount = userPremiumAmount;
+        user.compansatedAmount = 0;
+        
+        await stub.putState(userName, Buffer.from(JSON.stringify(user)));
+
+        let indexName = `secret~name`;
+        let secretNameIndexKey = await stub.createCompositeKey(indexName, [user.secret, user.name]);
+        console.log(secretNameIndexKey);
+
+        await stub.putState(secretNameIndexKey, Buffer.from('\u0000'));
+        console.info("end of initialzation");
+    }
+
+    async initCompany(stub, args, thisClass) {
         if (args.length != 5) {
             throw new Error('Incorrect number of arguments. Expecting 4');
         }
@@ -52,33 +113,32 @@ let Chaincode = class {
         if (args[4].length <= 0) {
             throw new Error('5th argument must be a non-empty string');
         }
-        let userName = args[0];
-        let userAddress = args[1];
-        let userMobile = args[3];
-        let userSecret = args[4];
-        let userAmount = parseInt(args[2]);
-        if (typeof userAmount !== 'number') {
+        let companyName = args[0];
+        let companyAddress = args[1];
+        let companyMobile = args[2];
+        let companySecret = args[3];
+        let companyAmount = parseInt(args[4]);
+        if (typeof companyAmount !== 'number') {
             throw new Error(`3rd argument should be a numeric type`);
         }
 
-        let userState = await stub.getState(userName);
-        if (userState.toString()) {
+        let companyState = await stub.getState(companyName);
+        if (companyState.toString()) {
             throw new Error(`User already exists`);
         }
 
-        let user = {};
-        user.docType = 'user';
-        user.name = userName;
-        user.mobile = userMobile;
-        user.address = userAddress;
-        user.secret = userSecret;
-        user.amount = userAmount;
-        user.premiumAmount = userAmount;
+        let company = {};
+        company.docType = 'company';
+        company.name = companyName;
+        company.mobile = companyMobile;
+        company.address = companyAddress;
+        company.secret = companySecret;
+        company.totalAmount = companyAmount;
 
-        await stub.putState(userName, Buffer.from(JSON.stringify(user)));
+        await stub.putState(companyName, Buffer.from(JSON.stringify(company)));
 
         let indexName = `secret~name`;
-        let secretNameIndexKey = await stub.createCompositeKey(indexName, [user.secret, user.name]);
+        let secretNameIndexKey = await stub.createCompositeKey(indexName, [company.secret, company.name]);
         console.log(secretNameIndexKey);
 
         await stub.putState(secretNameIndexKey, Buffer.from('\u0000'));
@@ -92,7 +152,7 @@ let Chaincode = class {
 
         let argUser = args[0];
         if (!argUser) {
-            throw new Error(`Mobile number cant be blank`);
+            throw new Error(`Name cant be blank`);
         }
 
         let user = await stub.getState(argUser);
@@ -108,43 +168,6 @@ let Chaincode = class {
         return user;
     }
 
-
-    async deleteUser(stub, args, thisClass) {
-        if (args.length != 1) {
-            throw new Error('Incorrect number of arguments. Expecting name of the marble to delete');
-        }
-
-        let userArg = args[0];
-        if (!userArg) {
-            throw new Error(`Mobile number cant be left blank`);
-        }
-
-        let user = await stub.getState(userArg);
-        if (!user) {
-            throw Error(`Cannot find the user this is mobile number`);
-        }
-
-        let userJSON = {};
-        try {
-            userJSON = JSON.parse(user.toString());
-        } catch (error) {
-            let jsonError = {};
-            jsonError.Error = `Unable to decode json of ${mobile}`;
-            throw new Error(JSON.stringify(jsonError));
-        }
-
-        await stub.deleteState(userArg);
-
-        const indexName = `secret~name`;
-        let secretNameIndexKey = stub.createCompositeKey(indexName, [userJSON.secret, userJSON.name]);
-        if (!secretNameIndexKey) {
-            throw new Error(`Failed to create a composite key`);
-        }
-         
-        console.log(`OK`);
-        await stub.deleteState(secretNameIndexKey);
-    }
-
     async queryUserByOwner(stub, args, thisClass) {
         //   0
         // 'bob'
@@ -156,6 +179,23 @@ let Chaincode = class {
         let queryString = {};
         queryString.selector = {};
         queryString.selector.docType = 'user';
+        queryString.selector.name = owner;
+        let method = thisClass['getQueryResultForQueryString'];
+        let queryResults = await method(stub, JSON.stringify(queryString), thisClass);
+        return queryResults; //shim.success(queryResults);
+    }
+
+    async queryCompanyByName(stub, args, thisClass) {
+        //   0
+        // 'bob'
+        if (args.length < 1) {
+            throw new Error('Incorrect number of arguments. Expecting owner name.');
+        }
+
+        let owner = args[0];
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.docType = 'company';
         queryString.selector.name = owner;
         let method = thisClass['getQueryResultForQueryString'];
         let queryResults = await method(stub, JSON.stringify(queryString), thisClass);
@@ -181,14 +221,33 @@ let Chaincode = class {
         return queryResults; //shim.success(queryResults);
     }
 
+    async queryCompanyByOwnerAndPassword(stub, args, thisClass) {
+        //   0
+        // 'bob'
+        if (args.length < 2) {
+            throw new Error('Incorrect number of arguments. Expecting owner name.')
+        }
+
+        let owner = args[0];
+        let password = args[1];
+        let queryString = {};
+        queryString.selector = {};
+        queryString.selector.docType = 'company';
+        queryString.selector.name = owner;
+        queryString.selector.secret= password;
+        let method = thisClass['getQueryResultForQueryString'];
+        let queryResults = await method(stub, JSON.stringify(queryString), thisClass);
+        return queryResults; //shim.success(queryResults);
+    }
+    
     async payPremiumByUserName(stub, args, thisClass){
         if(args.length != 3){
             throw new Error(`Invalid number of arguments. please enter 2 argument`);
         }
 
-        var argsCompany = args[2];
-        var argsName = args[0];
-        var argsAmount = parseInt(args[1]);
+        var argsCompany = args[0];
+        var argsName = args[1];
+        var argsAmount = parseInt(args[2]);
         if(typeof argsAmount !== 'number'){
             throw new Exception(`please enter an integer argument in the string`);
         }
@@ -206,7 +265,7 @@ let Chaincode = class {
             jsonError.Error = `Unable to decode json of ${argsName}`;
             throw new Error(JSON.stringify(jsonError));
         }
-        
+       
         let companyAsBytes = await stub.getState(argsCompany);
         if(!companyAsBytes.toString()){
             throw new Exception(`${argsName} user not found`);
@@ -220,27 +279,66 @@ let Chaincode = class {
             jsonError.Error = `Unable to decode json of ${argsName}`;
             throw new Error(JSON.stringify(jsonError));
         }
-
-        user.premiumAmount += argsAmount;
-        company.totalAmount += argsAmount;
+        
+        const userAmount = user.amount;
+        user.amount = userAmount + argsAmount;
+        const companyAmount = company.totalAmount;
+        company.totalAmount = companyAmount + argsAmount;
         
         await stub.putState(argsName, Buffer.from(JSON.stringify(user)));
-        await stub.putState(argsCompany, Buffer.from(JSON.stringify(user)));
+        await stub.putState(argsCompany, Buffer.from(JSON.stringify(company)));
 
-        const indexKey = `secret~name`;
+    }
 
-        let secretNameIndexKey = await stub.createCompositeKey(indexKey,[user.secret,user.name]);
-        if(!secretNameIndexKey){
-            throw new Exception(`Failed to generate index key`);
+    async payCompansation(stub, args, thisClass){
+        if(args.length<3){
+            throw new Error(`Invalid number of arguments in the smart contract`);
         }
-        await stub.putState(secretNameIndexKey,Buffer.from('\u0000'));
+
+        let companyArgs = args[0];
+        let userArgs = args[1];
+        let compansationPercent = parseInt(args[2]);
+        if(typeof compansationPercent !== 'number' ){
+            throw new Error(`Compansation amount should be a number`);
+        }
+
+        let userAsBytes = await stub.getState(userArgs);
+        if(!userAsBytes.toString()){
+            throw new Exception(`${userArgs} user not found`);
+        }
         
-        secretNameIndexKey = await stub.createCompositeKey(indexKey,[company.secret,company.name]);
-        if(!secretNameIndexKey){
-            throw new Exception(`Failed to generate index key`);
+        let user= {};
+        try {
+            user= JSON.parse(userAsBytes.toString());
+        } catch (error) {
+            let jsonError = {};
+            jsonError.Error = `Unable to decode json of ${argsName}`;
+            throw new Error(JSON.stringify(jsonError));
         }
+        
+        let companyAsBytes = await stub.getState(companyArgs);
+        if(!companyAsBytes.toString()){
+            throw new Exception(`${companyArgs} user not found`);
+        }
+        
+        let company= {};
+        try {
+            company= JSON.parse(companyAsBytes.toString());
+        } catch (error) {
+            let jsonError = {};
+            jsonError.Error = `Unable to decode json of ${argsName}`;
+            throw new Error(JSON.stringify(jsonError));
+        }
+        // insert logic for updateing total amount.
+        let amount = Math.min(user.amount, user.userPremiumAmount);
+        amount = 4000 * (compansationPercent/100);
+        user.compansatedAmount = amount;
+        let companyTotal = company.totalAmount;
+        company.totalAmount = companyTotal - amount;
+        
+        await stub.putState(userArgs, Buffer.from(JSON.stringify(user)));
+        await stub.putState(companyArgs, Buffer.from(JSON.stringify(company)));
 
-        await stub.putState(secretNameIndexKey,Buffer.from('\u0000'));
     }
     
     async getHistoryForUser(stub, args, thisClass) {
