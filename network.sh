@@ -149,10 +149,19 @@ function networkUp(){
         replacePrivateKey
         generateChannelArtifacts
     fi
-    docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml up -d
-    docker ps
-    docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
-    docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
+    if [ "${CERTIFICATE_AUTHORITIES}" == "true" ]; then
+      export BYFN_CA1_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org1.example.com/ca && ls *_sk)
+      export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
+      docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml -f docker-compose-e2e.yaml up -d
+      docker ps
+      docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
+      docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
+    else
+      docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml up -d
+      docker ps
+      docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
+      docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
+    fi
 }
 
 function networkDown() {
@@ -173,7 +182,7 @@ CONSENSUS_TYPE="solo"
 CLI_TIMEOUT=100
 CLI_DELAY=30
 SYS_CHANNEL="insurance-sys-channel"
-CERTIFICATE_AUTHORITIES=false
+CERTIFICATE_AUTHORITIES=true
 CHANNEL_NAME="mychannel"
 LANGUAGE=javascript
 export VERBOSE=true
@@ -192,6 +201,7 @@ if [ "$MODE" == "generate" ]; then
     echo "####################    Generate PreReq   #######################"
     echo "#################################################################"
     generateCerts
+    replacePrivateKey
     generateChannelArtifacts
 elif [ "$MODE" == "up" ]; then
     networkUp
