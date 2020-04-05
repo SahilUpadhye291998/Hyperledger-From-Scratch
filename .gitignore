@@ -9,4 +9,4 @@
 *.java
 *.go
 byfn.sh
-RestServer/node_modules
+/RestServer/node_modules
