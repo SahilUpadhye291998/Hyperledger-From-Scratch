@@ -10,3 +10,5 @@
 *.go
 byfn.sh
 /RestServer/node_modules/*
+connection-org*.json
+connection-org*.yaml

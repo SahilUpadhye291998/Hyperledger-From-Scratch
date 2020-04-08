@@ -1,20 +1,33 @@
 const express = require("express");
 const router = express.Router();
-const enrollAdmin = require("../../methods/enrollAdmin");
+const admin = require("../../methods/enrollAdmin");
 
 router.post("/", async (req, res) => {
   console.info("Admin route called");
   const json = {};
-  enrollAdmin()
+  admin
+    .enrollUserAdmin()
     .then(() => {
       json.code = 200;
-      json.Message = "Admin enrolled successfully";
+      json.userMessage = "User Admin enrolled successfully";
+    })
+    .catch((error) => {
+      console.log(error);
+      json.code = 500;
+      json.userMessage = "Some error has occured";
+    });
+
+  admin
+    .enrollCompanyAdmin()
+    .then(() => {
+      json.code = 200;
+      json.companyMessage = "Company Admin enrolled successfully";
       res.status(200).send(json);
     })
     .catch((error) => {
       console.log(error);
       json.code = 500;
-      json.Message = "Some error has occured";
+      json.companyMessage = "Some error has occured";
       res.status(500).send(json);
     });
 });

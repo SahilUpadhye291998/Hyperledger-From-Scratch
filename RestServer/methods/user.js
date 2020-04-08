@@ -16,14 +16,14 @@ async function registerUser(secretUserName, userOrg) {
     const userExists = await wallet.exists(secretUserName);
     if (userExists) {
       console.log(
-        'An identity for the user "user1" already exists in the wallet'
+        `An identity for the user ${secretUserName} already exists in the wallet`
       );
       return;
     }
-    const adminExists = await wallet.exists("admin");
+    const adminExists = await wallet.exists("adminOrg1");
     if (!adminExists) {
       console.log(
-        'An identity for the admin user "admin" does not exist in the wallet'
+        'An identity for the admin user "adminOrg1" does not exist in the wallet'
       );
       console.log("Run the enrollAdmin.js application before retrying");
       return;
@@ -32,7 +32,7 @@ async function registerUser(secretUserName, userOrg) {
     const gateway = new Gateway();
     await gateway.connect(ccpPath, {
       wallet,
-      identity: "admin", //TODO: check if we can change this
+      identity: "adminOrg1", //TODO: check if we can change this
       discovery: { enabled: true, asLocalhost: true },
     });
     const ca = gateway.getClient().getCertificateAuthority();
