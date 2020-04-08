@@ -154,13 +154,13 @@ function networkUp(){
       export BYFN_CA2_PRIVATE_KEY=$(cd crypto-config/peerOrganizations/org2.example.com/ca && ls *_sk)
       docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml -f docker-compose-e2e.yaml up -d
       docker ps
-      docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
-      docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
+      docker exec cli /bin/sh -c "scripts/networkUp_insurance.sh"
+      docker exec cli /bin/sh -c "scripts/testChaincode_insurance.sh"
     else
       docker-compose -f docker-compose-cli.yaml -f docker-compose-couch.yaml up -d
       docker ps
-      docker exec cli /bin/sh -c "scripts/networkUp_v3.sh"
-      docker exec cli /bin/sh -c "scripts/testChaincode_v3.sh"
+      docker exec cli /bin/sh -c "scripts/networkUp_insurance.sh"
+      docker exec cli /bin/sh -c "scripts/testChaincode_insurance.sh"
     fi
 }
 

@@ -3,6 +3,9 @@ const router = express.Router();
 
 const user = require("../../methods/company");
 
+//@route    POST api/company/registerCompany
+//@desc     To generate Company credentials
+//@access   PUBLIC
 router.post("/registerCompany", async (req, res) => {
   console.log(req.body.orgName);
   const secretCompanyName = req.body.secretCompanyName;
@@ -23,6 +26,9 @@ router.post("/registerCompany", async (req, res) => {
     });
 });
 
+//@route    POST api/company/signup
+//@desc     To signup Company and initialize in Blockchain
+//@access   PUBLIC
 router.post("/signup", (req, res) => {
   console.log(req.body.secretCompanyName);
   const secretCompanyName = req.body.secretCompanyName;
@@ -52,6 +58,9 @@ router.post("/signup", (req, res) => {
     });
 });
 
+//@route    POST api/company/login
+//@desc     To login Company from Blockchain
+//@access   PUBLIC
 router.post("/login", (req, res) => {
   console.log(req.body.secretUserName);
   const secretCompanyName = req.body.secretCompanyName;
@@ -75,6 +84,9 @@ router.post("/login", (req, res) => {
     });
 });
 
+//@route    POST api/company/readCompany
+//@desc     To read company with name in hyperledger
+//@access   PUBLIC
 router.post("/readCompany", (req, res) => {
   console.log(req.body.secretUserName);
   const secretCompanyName = req.body.secretCompanyName;
@@ -93,6 +105,9 @@ router.post("/readCompany", (req, res) => {
     });
 });
 
+//@route    POST api/company/readCompanyHistory
+//@desc     Read the history of the company with transaction history
+//@access   PUBLIC
 router.post("/readCompanyHistory", (req, res) => {
   console.log(req.body.secretUserName);
   const secretCompanyName = req.body.secretCompanyName;
@@ -111,6 +126,9 @@ router.post("/readCompanyHistory", (req, res) => {
     });
 });
 
+//@route    POST api/company/payCompansation
+//@desc     To Pay the compansation to the user with respect to percent
+//@access   PUBLIC
 router.post("/payCompansation", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretCompanyName;

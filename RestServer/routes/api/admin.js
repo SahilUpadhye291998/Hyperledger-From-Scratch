@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const admin = require("../../methods/enrollAdmin");
 
+//@route    POST api/admin/
+//@desc     To generate admin credentials
+//@access   PUBLIC
 router.post("/", async (req, res) => {
   console.info("Admin route called");
   const json = {};

@@ -3,6 +3,9 @@ const router = express.Router();
 
 const user = require("../../methods/user");
 
+//@route    POST api/user/registerUser
+//@desc     To generate User credentials
+//@access   PUBLIC
 router.post("/registerUser", async (req, res) => {
   console.log("OK");
   const secretUserName = req.body.secretUsername;
@@ -23,6 +26,9 @@ router.post("/registerUser", async (req, res) => {
     });
 });
 
+//@route    POST api/user/login
+//@desc     Login User with credentials from Blockchain
+//@access   PUBLIC
 router.post("/login", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretUsername;
@@ -42,6 +48,9 @@ router.post("/login", (req, res) => {
     });
 });
 
+//@route    POST api/user/signup
+//@desc     Signup User credentials from Blockchain
+//@access   PUBLIC
 router.post("/signup", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretUsername;
@@ -73,6 +82,9 @@ router.post("/signup", (req, res) => {
     });
 });
 
+//@route    POST api/user/payPremium
+//@desc     Pay the premium to the company
+//@access   PUBLIC
 router.post("/payPremium", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretUsername;
@@ -93,6 +105,9 @@ router.post("/payPremium", (req, res) => {
     });
 });
 
+//@route    POST api/user/getUser
+//@desc     To read the user from the database
+//@access   PUBLIC
 router.post("/getUser", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretUsername;
@@ -111,6 +126,9 @@ router.post("/getUser", (req, res) => {
     });
 });
 
+//@route    POST api/user/getUserHistory
+//@desc     Transaction history of the user
+//@access   PUBLIC
 router.post("/getUserHistory", (req, res) => {
   console.log(req.body.secretUsername);
   const secretUserName = req.body.secretUsername;
